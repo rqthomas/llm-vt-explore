@@ -261,6 +261,24 @@ chat
 
 ## Example 4
 
+*Goal: Demonstrate how the agent can be used to fix code with errors.*
+
+The script `broken-code.R` is a simple script that plots histogram of 100 random numbers drawn from a normal distribution.  It has an error where the standard deviation is -1 (it has to be non-negative).  Let's see how well the agent fixes this issue.
+
+First, reset the chat but retain the tools
+
+```{r}
+chat$set_turns(list())
+```
+
+This chat provides minimal instructions and includes a typo in the file name.
+
+```{r}
+chat$chat("The code in broke-code.R is giving an error.  Debug and fix.  Add a comment to code explain the issue")
+```
+
+## Example 5
+
 *Goal: try the agent yourself with your own prompt.*
 
 If you want to test the coding agent out for yourself, you can reset the chat but keep the tools by running the following command
