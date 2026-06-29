@@ -1,6 +1,6 @@
 # LLM explore
 
-## Setting up 
+## Setting up before the tutorial
 
 The set up involves getting your credentials for accessing Virginia Tech's LLM service and running the tutorial in a Docker container.  We are using a Docker container so that the LLM agent doesn't accidentally edit or remove files from your computer without your instructions.
 
@@ -9,6 +9,9 @@ The set up involves getting your credentials for accessing Virginia Tech's LLM s
 3. In the bottom right is the settings menu.  Click it and click "Settings".  Click "Account".  In "Account", click "API keys" and create one if you don't already have one. Copy the key — you'll need it in step 9.
 
 4. Download Docker Desktop if you haven't already downloaded it.
+
+## At the beginning of the tutorial
+
 5. In your terminal or powershell, run 
 
 ```
@@ -20,14 +23,14 @@ http://localhost:8787
 ```
 7. User name = "rstudio", Password = "yourpassword"
 
-8. Create a new project with version control using this repo (`rqthomas/llm-vt-explore`). 
+8. [In the Rstudio in your browser] Create a new project with version control using this repo (`https://github.com/rqthomas/llm-vt-explore`). 
 
-9. Create a new "File -> Text file"  called ".Renviron".  Add this line to the file and save it to the home directory.  It should not be in the llm-vt-explore directory.  
+9. [In the Rstudio in your browser] Create a new "File -> Text file"  called ".Renviron".  Add this line to the file and save it to the home directory.  It should not be in the `llm-vt-explore` directory so that the LLM doesn't read it in.
 ```
 OPENAI_API_KEY = "PASTE YOUR API KEY FROM STEP 3"
 ```
 
-10. Install the ellmer package: 
+10. [In the Rstudio in your browser] Install the ellmer package: 
 ```
 remotes::install_github("tidyverse/ellmer")
 ```

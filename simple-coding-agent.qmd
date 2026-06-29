@@ -13,23 +13,18 @@ The ai_lecture discussed how LLMs are just next word generators. This tutorial d
 
 ## Set up
 
-First install the latest version of the package "ellmer". Ellmer is a tidyverse associated package for interfacing with LLMs through R.
-
-```{r}
-#| eval: false
-remotes::install_github("tidyverse/ellmer")
-```
-
-Second, make sure that your API key is in the .Renviron file that in the home directory.  It should not be in the llm-vt-explore directory so that the LLM doesn't read in your credential (see README.md for more information).
-
-```{r}
-readRenviron("~/.Renviron")
-```
-
-Third, load the ellmer package
+Load the ellmer package (see README for instructions on how to install the package)
 
 ```{r}
 library(ellmer)
+```
+
+Make sure that your API key is in the .Renviron file that in the home directory (see README.md for more information). It should not be in the llm-vt-explore directory so that the LLM doesn't read in your credential
+
+Load the API key into memory.
+
+```{r}
+readRenviron("~/.Renviron")
 ```
 
 ## Example 1
@@ -37,6 +32,8 @@ library(ellmer)
 *Goal: see that an LLM can converse but cannot act on its own — it has no way to write files or run code.*
 
 Here is an example of ellmer usage. The command below start a chat with the \`MiniMax-M2.7" model on VT's LLM service. Per VT: "Use gpt-oss-120b for fast responses, GLM-5.2 or Kimi-K2.6 for complex tasks, and MiniMax-M2.7 for software engineering."
+
+> **Note on models:** While you might be most fimilar with model like Chat-GPT, Claude, and Gemini, there are many open source ("open weights") models avialable like the ones above.  They are free to use as long as you have the computional resources to run them. Your labtop does not have the required resources but Virginia Tech advanced resource computiong does and they provide it to us. This also mean that data shared with the model is not used by a company for training.  More info about MiniMax-M2.7 is here: <https://www.minimax.io/news/minimax-m27-en>
 
 ```{r}
 chat <- ellmer::chat_openai_compatible(
