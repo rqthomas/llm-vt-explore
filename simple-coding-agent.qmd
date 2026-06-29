@@ -31,20 +31,20 @@ readRenviron("~/.Renviron")
 
 *Goal: see that an LLM can converse but cannot act on its own — it has no way to write files or run code.*
 
-Here is an example of ellmer usage. The command below start a chat with the \`MiniMax-M2.7" model on VT's LLM service. 
+Here is an example of ellmer usage. The command below start a chat with the \`MiniMax-M2.7" model on VT's LLM service.
 
 Per VT: "Use gpt-oss-120b for fast responses, GLM-5.2 or Kimi-K2.6 for complex tasks, and MiniMax-M2.7 for software engineering."
 
-> **Note on models:** While you might be most fimilar with model like Chat-GPT, Claude, and Gemini, there are many open source ("open weights") models avialable like the ones above.  They are free to use as long as you have the computional resources to run them. Your labtop does not have the required resources but Virginia Tech advanced resource computiong does and they provide it to us. This also mean that data shared with the model is not used by a company for training.  More info about MiniMax-M2.7 is here: <https://www.minimax.io/news/minimax-m27-en>
+> **Note on models:** While you might be most fimilar with model like Chat-GPT, Claude, and Gemini, there are many open source ("open weights") models avialable like the ones above. They are free to use as long as you have the computional resources to run them. Your labtop does not have the required resources but Virginia Tech advanced resource computiong does and they provide it to us. This also mean that data shared with the model is not used by a company for training. More info about MiniMax-M2.7 is here: <https://www.minimax.io/news/minimax-m27-en>
 
 ```{r}
-chat <- ellmer::chat_openai_compatible(
+chat <- chat_openai_compatible(
   model = "MiniMax-M2.7",
   base_url = "https://llm-api.arc.vt.edu/api/v1/"
 )
 ```
 
-Now we can chat with the LLM. You should see text describing the difference between a tibble and a data frame.  This is the standard chat with an LLM.  However, it didn't save a file because it doesn't know how.
+Now we can chat with the LLM. You should see text describing the difference between a tibble and a data frame. This is the standard chat with an LLM. However, it didn't save a file because it doesn't know how.
 
 ```{r}
 chat$chat("What is the difference between a tibble and a data frame?  Save the output as a markdown file")
@@ -53,6 +53,14 @@ chat$chat("What is the difference between a tibble and a data frame?  Save the o
 ## Example 2
 
 *Goal: give the LLM tools for reading, writing, and running files, and watch it complete a task the first example couldn't.*
+
+Here is a great set of figures from the `ellmer` package documentation that describes what we are going to be doing.
+
+Importantly, we are not providing tools for the LLM to run as diagrammed in this figure that has the LLM getting data from the openweather.org website. The LLM is not the center of the workflow.
+
+![](https://raw.githubusercontent.com/tidyverse/ellmer/refs/heads/main/vignettes/tool-calling-wrong.svg) Instead, we are providing the LLM the context needed write the code or commands for our computer to run the tools. In this example, the LLM sends the request to the user to run the command on their computer and return the output back to the LLM. Code is executed on your computer, so the user (your computer) is at the center of the workflow. Therefore we need to tell the LLM what tools our computer has avaialable to work with. Think of these tools as functions.
+
+![](https://raw.githubusercontent.com/tidyverse/ellmer/refs/heads/main/vignettes/tool-calling-right.svg)
 
 Now we are going to add a few tools to the harness. The tools are reading files from your computer, writing files from your computer, and running commands on your computer. Running commands on your computer is the critical tool for running and evaluating code.
 
@@ -74,7 +82,7 @@ run_command <- function(command) {
 We are going to start a new chat but provide a bit more context through the `system_prompt`.
 
 ```{r}
-chat <- ellmer::chat_openai_compatible(
+chat <- chat_openai_compatible(
   model = "MiniMax-M2.7",
   base_url = "https://llm-api.arc.vt.edu/api/v1/",
   system_prompt = "
@@ -134,7 +142,7 @@ Example three shows how the harness can be used to write code from scratch that 
 First we need to expand our `system_prompt` so that the LLM will work until it has finished the task.
 
 ```{r}
-chat <- ellmer::chat_openai_compatible(
+chat <- chat_openai_compatible(
   model = "MiniMax-M2.7",
   base_url = "https://llm-api.arc.vt.edu/api/v1/",
   system_prompt = "
@@ -246,7 +254,7 @@ Now we can continue the chat to revise the plot
 chat$chat("A horizonal and vertical line for the first year that the curve was always above 400 ppm")
 ```
 
-This update to the chat included through previous chat and added the additional request. You can see the full chat by running the following. It will produce a lot of text (you can click on the x on the right side below the gray code chuck to remove the text after you see what it is doing). The key thing to understand is that all of the text below is passed to the LLM every time you chat so long chat requests, multiple chat calls, and long responses from LLM request in a long message. The length of this message is approximately your "context window" for the LLM and is related to the number of tokens it uses. LLM performance degrades when the context window gets too long.
+This update to the chat included through previous chat and added the additional request. You can see the full chat by running the following code. It will produce a lot of text (you can click on the x on the right side below the gray code chuck to remove the text after you see what it is doing). The key thing to understand is that all of the text below is passed to the LLM every time you chat because the LLM is stateless (it doesn't store anything from your prior request on the LLM that you can reuse). As a result, long chat requests, multiple chat calls, and long responses from LLM lead to a long message. The length of this message is approximately your "context window" for the LLM and is related to the number of tokens it uses. LLM performance degrades when the context window gets too long.
 
 ```{r}
 #| eval: false
@@ -264,7 +272,7 @@ If you want to test the coding agent out for yourself, you can reset the chat bu
 chat$set_turns(list())
 ```
 
-And start your new chat.  
+And start your new chat.
 
 ```{r}
 #| eval: false
