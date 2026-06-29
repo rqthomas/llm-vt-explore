@@ -22,10 +22,16 @@ http://localhost:8787
 
 8. Create a new project with version control using this repo (`rqthomas/llm-vt-explore`). 
 
-9. Create a new file called ".Renviron".  Add this line to the file and save it:
+9. Create a new "File -> Text file"  called ".Renviron".  Add this line to the file and save it to the home directory.  It should not be in the llm-vt-explore directory.  
 ```
-Sys.setenv(OPENAI_API_KEY = "PASTE YOUR API KEY FROM STEP 3")
+OPENAI_API_KEY = "PASTE YOUR API KEY FROM STEP 3"
 ```
+
+10. Install the ellmer package: 
+```
+remotes::install_github("tidyverse/ellmer")
+```
+
 ## Next steps
 
 Open and work through `simple-coding-agent.qmd`

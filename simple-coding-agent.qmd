@@ -1,7 +1,6 @@
 ---
 title: "LLM coding agent"
 format: html
-editor: visual
 ---
 
 # Overview
@@ -10,22 +9,21 @@ This brief tutorial provides a hands on demonstration of a simple coding agent b
 
 <https://tidydesign.substack.com/p/a-coding-agent-is-six-functions-in>
 
-The ai_lecture discussed how LLMs are just next word generators.  This tutorial demonstrates the development of a harness for coding.
-
+The ai_lecture discussed how LLMs are just next word generators. This tutorial demonstrates the development of a harness for coding.
 
 ## Set up
 
-First install the latest version of the package "ellmer".  Ellmer is a tidyverse associated package for interfacing with LLMs through R.
+First install the latest version of the package "ellmer". Ellmer is a tidyverse associated package for interfacing with LLMs through R.
 
 ```{r}
 #| eval: false
 remotes::install_github("tidyverse/ellmer")
 ```
 
-Second, make sure that your API key is in the creds.R file (see README.md for more information)
+Second, make sure that your API key is in the .Renviron file that in the home directory.  It should not be in the llm-vt-explore directory so that the LLM doesn't read in your credential (see README.md for more information).
 
 ```{r}
-source("creds.R")
+readRenviron("~/.Renviron")
 ```
 
 Third, load the ellmer package
@@ -38,7 +36,7 @@ library(ellmer)
 
 *Goal: see that an LLM can converse but cannot act on its own — it has no way to write files or run code.*
 
-Here is an example of ellmer usage.  The command below start a chat with the `MiniMax-M2.7" model on VT's LLM service.  Per VT: "Use gpt-oss-120b for fast responses, GLM-5.2 or Kimi-K2.6 for complex tasks, and MiniMax-M2.7 for software engineering."
+Here is an example of ellmer usage. The command below start a chat with the \`MiniMax-M2.7" model on VT's LLM service. Per VT: "Use gpt-oss-120b for fast responses, GLM-5.2 or Kimi-K2.6 for complex tasks, and MiniMax-M2.7 for software engineering."
 
 ```{r}
 chat <- ellmer::chat_openai_compatible(
@@ -47,7 +45,7 @@ chat <- ellmer::chat_openai_compatible(
 )
 ```
 
-Now we can chat with the LLM.  You should see text describing the difference between a tibble and a data frame but it didn't save a file because it doesn't know how.
+Now we can chat with the LLM. You should see text describing the difference between a tibble and a data frame but it didn't save a file because it doesn't know how.
 
 ```{r}
 chat$chat("What is the difference between a tibble and a data frame?  Save the output as a markdown file")
@@ -57,7 +55,7 @@ chat$chat("What is the difference between a tibble and a data frame?  Save the o
 
 *Goal: give the LLM tools for reading, writing, and running files, and watch it complete a task the first example couldn't.*
 
-Now we are going to add a few tools to the harness.  The tools are reading files from your computer, writing files from your computer, and running commands on your computer.  Running commands on your computer is the critical tool for running and evaluating code.  
+Now we are going to add a few tools to the harness. The tools are reading files from your computer, writing files from your computer, and running commands on your computer. Running commands on your computer is the critical tool for running and evaluating code.
 
 ```{r}
 read_file <- function(path) {
@@ -76,7 +74,6 @@ run_command <- function(command) {
 
 We are going to start a new chat but provide a bit more context through the `system_prompt`.
 
-
 ```{r}
 chat <- ellmer::chat_openai_compatible(
   model = "MiniMax-M2.7",
@@ -88,7 +85,7 @@ chat <- ellmer::chat_openai_compatible(
 )
 ```
 
-Now we need to register the tools with the LLM.  Registering involves providing the function, a description of what the function does so it knows when to use it, and arguments required by the function.
+Now we need to register the tools with the LLM. Registering involves providing the function, a description of what the function does so it knows when to use it, and arguments required by the function.
 
 ```{r}
 chat$register_tool(tool(
@@ -125,7 +122,7 @@ Now we can do the same chat but with the tooling harness included
 chat$chat("What is the difference between a tibble and a data frame?  Save the output as a markdown file")
 ```
 
-Look in your working directory — there should be a new .md file.  The LLM wrote the file to your computer!
+Look in your working directory — there should be a new .md file. The LLM wrote the file to your computer!
 
 > **Note on safety:** `run_command` can execute any shell command, which is powerful but risky. Running the tutorial inside Docker (as described in the README) limits what the agent can reach — it can only touch files inside the container.
 
@@ -151,7 +148,7 @@ chat <- ellmer::chat_openai_compatible(
 )
 ```
 
-We need to add some new functions.  You can read more about them in Hadley's post.  They are used to provide some safety so the agent only works in your working directory.
+We need to add some new functions. You can read more about them in Hadley's post. They are used to provide some safety so the agent only works in your working directory.
 
 ```{r}
 list_files <- function(path = ".") {
@@ -182,9 +179,9 @@ search_files <- function(pattern, path = ".") {
 }
 ```
 
-Now register these new tools along with our previous tools.  You have to do this every time you start a new chat with `chat <- ellmer::chat_openai_compatible` (note: you can use `chat$set_turns(list())` to reset a chat and keep the tools, but we restarted the chat from scratch because we edited the system prompt.).  
+Now register these new tools along with our previous tools. You have to do this every time you start a new chat with `chat <- ellmer::chat_openai_compatible` (note: you can use `chat$set_turns(list())` to reset a chat and keep the tools, but we restarted the chat from scratch because we edited the system prompt.).
 
-Notice how none of our tools are specific to any code problem.  They are generic tools for reading, writing, and executing files.
+Notice how none of our tools are specific to any code problem. They are generic tools for reading, writing, and executing files.
 
 ```{r}
 chat$register_tool(tool(
@@ -248,7 +245,7 @@ Now we can continue the chat to revise the plot
 chat$chat("A horizonal and vertical line for the first year that the curve was always above 400 ppm")
 ```
 
-This update to the chat included through previous chat and added the additional request.  You can see the full chat by running the following.  It will produce a lot of text (you can click on the x on the right side below the gray code chuck to remove the text after you see what it is doing).  The key thing to understand is that all of the text below is passed to the LLM every time you chat so long chat requests, multiple chat calls, and long responses from LLM request in a long message.  The length of this message is approximately your "context window" for the LLM and is related to the number of tokens it uses.  LLM performance degrades when the context window gets too long.
+This update to the chat included through previous chat and added the additional request. You can see the full chat by running the following. It will produce a lot of text (you can click on the x on the right side below the gray code chuck to remove the text after you see what it is doing). The key thing to understand is that all of the text below is passed to the LLM every time you chat so long chat requests, multiple chat calls, and long responses from LLM request in a long message. The length of this message is approximately your "context window" for the LLM and is related to the number of tokens it uses. LLM performance degrades when the context window gets too long.
 
 ```{r}
 #| eval: false
@@ -275,6 +272,4 @@ chat$chat("ADD YOUR CHAT MESSAGE HERE")
 
 Enjoy and remember that Claude Code is just version of these that has more extensive system prompts and uses the Claude LLM models!
 
-For example, there have been attempts to reverse engineer Claude Code.  See this repository with many instructions as part of the system prompt. (https://github.com/Piebald-AI/claude-code-system-prompts)
-
-
+For example, there have been attempts to reverse engineer Claude Code. See this repository with many instructions as part of the system prompt. (<https://github.com/Piebald-AI/claude-code-system-prompts>)
