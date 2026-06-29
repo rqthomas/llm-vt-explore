@@ -5,9 +5,10 @@ format: html
 
 # Overview
 
-This brief tutorial provides a hands on demonstration of a simple coding agent based on Hadley Wickham's recent blog post
+This brief tutorial provides a hands on demonstration of a simple coding agent based on Hadley Wickham's recent blog posts
 
-<https://tidydesign.substack.com/p/a-coding-agent-is-six-functions-in>
+<https://tidydesign.substack.com/p/a-coding-agent-is-six-functions-in> and 
+<https://tidydesign.substack.com/p/what-is-an-agent>
 
 The ai_lecture discussed how LLMs are just next word generators. This tutorial demonstrates the development of a harness for coding.
 
@@ -61,8 +62,9 @@ Importantly, we are not providing tools for the LLM to run as diagrammed in this
 ![](https://raw.githubusercontent.com/tidyverse/ellmer/refs/heads/main/vignettes/tool-calling-wrong.svg) Instead, we are providing the LLM the context needed write the code or commands for our computer to run the tools. In this example, the LLM sends the request to the user to run the command on their computer and return the output back to the LLM. Code is executed on your computer, so the user (your computer) is at the center of the workflow. Therefore we need to tell the LLM what tools our computer has avaialable to work with. Think of these tools as functions.
 
 ![](https://raw.githubusercontent.com/tidyverse/ellmer/refs/heads/main/vignettes/tool-calling-right.svg)
+From Hadley, "A harness is a program that wraps around the raw LLM and can (among other things) run these local functions for you." and "an agent is an LLM, in a harness, that calls tools repeatedly in a loop, deciding each next step from the last result".  (<https://tidydesign.substack.com/p/what-is-an-agent>)
 
-Now we are going to add a few tools to the harness. The tools are reading files from your computer, writing files from your computer, and running commands on your computer. Running commands on your computer is the critical tool for running and evaluating code.
+Now we are going to add a few tools to the harness. The tools are reading files from your computer, writing files from your computer, and running commands on your computer. Running commands on your computer is the critical tool for running and evaluating code.  
 
 ```{r}
 read_file <- function(path) {
@@ -79,7 +81,7 @@ run_command <- function(command) {
 }
 ```
 
-We are going to start a new chat but provide a bit more context through the `system_prompt`.
+We are going to start a new chat but provide a bit more context through the `system_prompt`. 
 
 ```{r}
 chat <- chat_openai_compatible(
@@ -137,9 +139,7 @@ Look in your working directory — there should be a new .md file. The LLM wrote
 
 *Goal: upgrade the system prompt so the agent loops autonomously until the task is complete, and add safety helpers that prevent it from escaping the project directory.*
 
-Example three shows how the harness can be used to write code from scratch that accomplishes a task.
-
-First we need to expand our `system_prompt` so that the LLM will work until it has finished the task.
+Example three shows how the harness can be used to write code from scratch that accomplishes a task. This makes it more like an agent because "can calls tools repeatedly in a loop, deciding each next step from the last result".  (<https://tidydesign.substack.com/p/what-is-an-agent>)
 
 ```{r}
 chat <- chat_openai_compatible(
