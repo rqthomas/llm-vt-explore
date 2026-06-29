@@ -13,13 +13,13 @@ The ai_lecture discussed how LLMs are just next word generators. This tutorial d
 
 ## Set up
 
-Load the ellmer package (see README for instructions on how to install the package)
+Load the `ellmer` package (see README for instructions on how to install the package)
 
 ```{r}
 library(ellmer)
 ```
 
-Make sure that your API key is in the .Renviron file that in the home directory (see README.md for more information). It should not be in the llm-vt-explore directory so that the LLM doesn't read in your credential
+Make sure that your API key is in the `.Renviron` file that in the home directory (see README.md for more information). It should not be in the `llm-vt-explore` directory so that the LLM doesn't read in your credential
 
 Load the API key into memory.
 
@@ -31,7 +31,9 @@ readRenviron("~/.Renviron")
 
 *Goal: see that an LLM can converse but cannot act on its own — it has no way to write files or run code.*
 
-Here is an example of ellmer usage. The command below start a chat with the \`MiniMax-M2.7" model on VT's LLM service. Per VT: "Use gpt-oss-120b for fast responses, GLM-5.2 or Kimi-K2.6 for complex tasks, and MiniMax-M2.7 for software engineering."
+Here is an example of ellmer usage. The command below start a chat with the \`MiniMax-M2.7" model on VT's LLM service. 
+
+Per VT: "Use gpt-oss-120b for fast responses, GLM-5.2 or Kimi-K2.6 for complex tasks, and MiniMax-M2.7 for software engineering."
 
 > **Note on models:** While you might be most fimilar with model like Chat-GPT, Claude, and Gemini, there are many open source ("open weights") models avialable like the ones above.  They are free to use as long as you have the computional resources to run them. Your labtop does not have the required resources but Virginia Tech advanced resource computiong does and they provide it to us. This also mean that data shared with the model is not used by a company for training.  More info about MiniMax-M2.7 is here: <https://www.minimax.io/news/minimax-m27-en>
 
@@ -42,7 +44,7 @@ chat <- ellmer::chat_openai_compatible(
 )
 ```
 
-Now we can chat with the LLM. You should see text describing the difference between a tibble and a data frame but it didn't save a file because it doesn't know how.
+Now we can chat with the LLM. You should see text describing the difference between a tibble and a data frame.  This is the standard chat with an LLM.  However, it didn't save a file because it doesn't know how.
 
 ```{r}
 chat$chat("What is the difference between a tibble and a data frame?  Save the output as a markdown file")
@@ -176,7 +178,9 @@ search_files <- function(pattern, path = ".") {
 }
 ```
 
-Now register these new tools along with our previous tools. You have to do this every time you start a new chat with `chat <- ellmer::chat_openai_compatible` (note: you can use `chat$set_turns(list())` to reset a chat and keep the tools, but we restarted the chat from scratch because we edited the system prompt.).
+Now register these new tools along with our previous tools. You have to do this every time you start a new chat with `chat <- ellmer::chat_openai_compatible`.
+
+> **Note:** you can use `chat$set_turns(list())` to reset a chat and keep the tools, but we restarted the chat from scratch because we edited the system prompt and need to add the tools again.
 
 Notice how none of our tools are specific to any code problem. They are generic tools for reading, writing, and executing files.
 
@@ -260,6 +264,8 @@ If you want to test the coding agent out for yourself, you can reset the chat bu
 chat$set_turns(list())
 ```
 
+And start your new chat.  
+
 ```{r}
 #| eval: false
 chat$chat("ADD YOUR CHAT MESSAGE HERE")
@@ -267,6 +273,6 @@ chat$chat("ADD YOUR CHAT MESSAGE HERE")
 
 ## Take home
 
-Enjoy and remember that Claude Code is just version of these that has more extensive system prompts and uses the Claude LLM models!
+Enjoy and remember that Claude Code is just a version of this that has more extensive system prompts and uses the Claude LLM models!
 
 For example, there have been attempts to reverse engineer Claude Code. See this repository with many instructions as part of the system prompt. (<https://github.com/Piebald-AI/claude-code-system-prompts>)
