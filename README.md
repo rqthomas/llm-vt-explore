@@ -6,7 +6,7 @@ The set up involves getting your credentials for accessing Virginia Tech's LLM s
 
 1. If not on campus, log into the university VPN.
 2. Go to <https://llm.arc.vt.edu>
-3. In the bottom left is the settings menu.  Click it and click "Settings".  Click "Account".  In "Account", click "API keys" and create one if you don't already have one. Copy the key — you'll need it in step 9.
+3. In the bottom left is the settings menu.  Click it and click "Settings".  Click "Account".  In "Account", click "API keys" and create one if you don't already have one. Copy the key — you'll need it in step 10.
 
 4. Download Docker Desktop if you haven't already downloaded it.
 
