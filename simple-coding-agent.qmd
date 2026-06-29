@@ -1,0 +1,257 @@
+---
+title: "LLM coding agent"
+format: html
+editor: visual
+---
+
+# Overview
+
+This brief tutorial provides a hands on demonstration of a simple coding agent based on Hadley Wickham's recent blog post
+
+<https://tidydesign.substack.com/p/a-coding-agent-is-six-functions-in>
+
+The ai_lecture discussed how LLMs are just next word generators.  This tutorial demonstrates the development of a harness for coding.
+
+
+## Set up
+
+First install the latest version of the package "ellmer".  Ellmer is a tidyverse associated package for interfacing with LLMs through R.
+
+```{r}
+remotes::install_github("tidyverse/ellmer")
+
+```
+
+Second, make sure that your API key is in the creds.R file
+
+```{r}
+source("creds.R")
+```
+
+Third, load the ellmer package
+
+```{r}
+library(ellmer)
+```
+
+## Example 1
+
+Here is an example of ellmer usage.  The command below start a chat with the `MiniMax-M2.7" model on VT's LLM service.  Per VT "Use gpt-oss-120b for fast responses, GLM-5.2 or Kimi-K2.6 for complex tasks, and MiniMax-M2.7 for software engineering."
+
+```{r}
+chat <- ellmer::chat_openai_compatible(
+  model = "MiniMax-M2.7",
+  base_url = "https://llm-api.arc.vt.edu/api/v1/"
+)
+```
+
+Now we can chat with the LLM.  You should see text describing the difference between a tibble and a data frame but it didn't save a file because it doesn't know how.
+
+```{r}
+chat$chat("What is the difference between a tibble and a data frame?  Save the output as a markdown file")
+```
+
+## Example 2
+
+Now we are going to add a few tools to the harness.  The tools are reading files from your computer, writing files from your computer, and running commands on your computer.  Running commands on your computer is the critical tool for running and evaluating code.  
+
+```{r}
+read_file <- function(path) {
+  paste(readLines(path), collapse = "\n")
+}
+
+write_file <- function(path, content) {
+  writeLines(content, path)
+  paste0("Wrote ", path, ".")
+}
+
+run_command <- function(command) {
+  paste(system(command, intern = TRUE), collapse = "\n")
+}
+```
+
+We are going to start a new chat but provide a bit more context through the `system_prompt`.
+
+
+```{r}
+chat <- ellmer::chat_openai_compatible(
+  model = "MiniMax-M2.7",
+  base_url = "https://llm-api.arc.vt.edu/api/v1/",
+  system_prompt = "
+    You are a coding assistant working in the user's current directory.
+    Use the tools to write files to the current directory.
+  ",
+  params = NULL
+)
+```
+
+Now we need to register the tools with the LLM.  Registering involve providing the function, a description of what the function does so it knows when to use it, and arguements required by the function.
+
+```{r}
+chat$register_tool(tool(
+  read_file,
+  description = "Read the entire contents of a text file.",
+  arguments = list(
+    path = type_string("Path to the file, relative to the working directory.")
+  )
+))
+
+chat$register_tool(tool(
+  write_file,
+  description = "Write content to a file, overwriting it if it already exists.
+    Always read the file first if you only want to change part of it.",
+  arguments = list(
+    path = type_string("Path to the file, relative to the working directory."),
+    content = type_string("The full new contents of the file.")
+  )
+))
+
+chat$register_tool(tool(
+  run_command,
+  description = "Run a shell command and return its output. Use this to list
+    files (ls), search code (grep), run tests, or use git.",
+  arguments = list(
+    command = type_string("The shell command to run.")
+  )
+))
+```
+
+Now we can do the same chat but with the tooling harness included
+
+```{r}
+chat$chat("What is the difference between a tibble and a data frame?  Save the output as a markdown file")
+```
+
+Look in your home directory there should be a new .md file.  The LLM wrote the file to your computer!   
+
+## Example 3
+
+Example three shows how the harness can be used to write code from scratch that accomplishes a task
+
+First we need to expand our system_prompt so that the LLM will work until it has finished the task.
+
+```{r}
+chat <- ellmer::chat_openai_compatible(
+  model = "MiniMax-M2.7",
+  base_url = "https://llm-api.arc.vt.edu/api/v1/",
+  system_prompt = "
+    You are a coding assistant working in the user's current directory.
+    Use the tools to explore and modify their project. Before editing a
+    file, read it first. After making changes, run any relevant tests or
+    checks to confirm your work. Keep going until the task is done.  You prefer to 
+    write code in R.
+  "
+)
+```
+
+We need to add some new functions.  You can read more about them in Hadley post.  They are used to provide some safety so the agentic only works in your working directory.
+
+```{r}
+list_files <- function(path = ".") {
+  paste(list.files(path), collapse = "\n")
+}
+
+safe_path <- function(path) {
+  root <- normalizePath(".", winslash = "/", mustWork = TRUE)
+  full <- normalizePath(path, winslash = "/", mustWork = FALSE)
+  within_root <- full == root || startsWith(full, paste0(root, "/"))
+  
+  if (!within_root) {
+    stop("Path is outside the project directory: ", path)
+  }
+  path
+}
+
+search_files <- function(pattern, path = ".") {
+  files <- list.files(path, recursive = TRUE, full.names = TRUE)
+  hits <- character()
+  for (file in files) {
+    lines <- readLines(file, warn = FALSE)
+    matches <- grep(pattern, lines)
+    hits <- c(hits, paste0(file, ":", matches, ": ", lines[matches]))
+  }
+  paste(hits, collapse = "\n")
+}
+
+search_files <- function(pattern, path = ".") {
+  files <- list.files(safe_path(path), recursive = TRUE, full.names = TRUE)
+  
+  hits <- character()
+  for (file in files) {
+    lines <- readLines(file, warn = FALSE)
+    matches <- grep(pattern, lines)
+    hits <- c(hits, paste0(file, ":", matches, ": ", lines[matches]))
+  }
+  paste(hits, collapse = "\n")
+}
+```
+
+Now register these new tools along with our previous tools.  You have to do this every time you start a new chat with `chat <- ellmer::chat_openai_compatible` (note: you can use `chat$set_turns(list())` to reset a chat and keep the tools but we restarted the chat from scratch because we editted the system prompt.).  
+
+Notice how none of our tools are specific to any code problem.  They are generic tools for read, writing, and executing files.
+
+```{r}
+chat$register_tool(tool(
+  read_file,
+  description = "Read the entire contents of a text file.",
+  arguments = list(
+    path = type_string("Path to the file, relative to the working directory.")
+  )
+))
+
+chat$register_tool(tool(
+  write_file,
+  description = "Write content to a file, overwriting it if it already exists.
+    Always read the file first if you only want to change part of it.",
+  arguments = list(
+    path = type_string("Path to the file, relative to the working directory."),
+    content = type_string("The full new contents of the file.")
+  )
+))
+
+chat$register_tool(tool(
+  run_command,
+  description = "Run a shell command and return its output. Use this to list
+    files (ls), search code (grep), run tests, or use git.",
+  arguments = list(
+    command = type_string("The shell command to run.")
+  )
+))
+
+
+chat$register_tool(tool(
+  list_files,
+  description = "List the files and directories at a given path.",
+  arguments = list(
+    path = type_string("Directory to list. Defaults to the working directory.")
+  )
+))
+
+chat$register_tool(tool(
+  search_files,
+  description = "Search the contents of all files for a regular expression,
+    returning matching lines as 'path:line: text'.",
+  arguments = list(
+    pattern = type_string("A regular expression to search for."),
+    path = type_string("Directory to search. Defaults to the working directory.")
+  )
+))
+```
+
+```{r}
+chat$chat("Find the Mauna Loa data.  Create an R script to plot the data using ggplot. Save the plot as a png.")
+```
+
+Confirm that an R script and plot were created in your working directory.
+
+How we can continue the chat to revise the plot
+
+```{r}
+chat$chat("A horizonal and vertical line for the first year that the curve was always above 400 ppm")
+```
+
+This update to the chat included through previous chat and added the additional request 
+
+
+chat$set_turns(list())
+
