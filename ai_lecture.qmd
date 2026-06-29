@@ -1,6 +1,7 @@
 ---
 title: "AI 101"
 editor: visual
+author: R. Quinn Thomas
 format:
   revealjs:
     embed-resources: true
@@ -8,15 +9,11 @@ format:
 
 ## What is this thing?
 
-Large Language Models (LLMs) are at the heart of tools like ChatGPT, Claude, and Gemini
+- Large Language Models (LLMs) are at the heart of tools like ChatGPT, Claude, and Gemini
 
-$~$
+- They are **not** search engines, databases, or calculators
 
-They are **not** search engines, databases, or calculators
-
-$~$
-
-They are **next-word predictors** trained on massive amounts of text
+- They are **next-word predictors** trained on massive amounts of text
 
 ## How does an LLM work?
 
@@ -36,7 +33,7 @@ P("city"   | "The carbon is stored in the ___") = 0.10
 
 ## A bit more detail
 
-[LLM video](https://www.youtube.com/watch?v=LPZh9BOjkQs)
+[LLM video (8 minutes)](https://www.youtube.com/watch?v=LPZh9BOjkQs)
 
 ## Training: where the knowledge comes from {.smaller}
 
@@ -47,7 +44,7 @@ P("city"   | "The carbon is stored in the ___") = 0.10
 
 $~$
 
-**Fine-tuning with RLHF**
+**Fine-tuning with RLHF** (Re-enforcement Learning with Human Feedback)
 
 - Human raters score model outputs
 - Model is rewarded for responses humans prefer
@@ -59,15 +56,11 @@ $~$
 
 $~$
 
-The model learns to sound right
+- The model learns to sound right
 
-$~$
+- Sounding right ≠ being right
 
-Sounding right ≠ being right
-
-$~$
-
-This is the root cause of **hallucinations**
+- This is the root cause of **hallucinations**
 
 ## Hallucinations {.smaller}
 
@@ -128,11 +121,11 @@ The "personality" of an AI product is largely a prompting choice, not a model pr
 
 ## Connecting LLMs to tools {.smaller}
 
-The model still just predicts the next token — but that token can be a **tool call**
+- The model still just predicts the next token — but that token can be a **tool call**
 
-The set of tools and prompts around an LLM is called the "harness".  
+- The set of tools and prompts around an LLM is called the "harness".
 
-One well-known harness is "Claude Code" for writing code.
+- One well-known harness is "Claude Code" for writing code.
 
 $~$
 
@@ -160,11 +153,7 @@ $~$
 
 > An AI agent is a system that doesn't just respond to a single prompt but pursues a **goal** over multiple steps, making decisions along the way and taking actions in the world.
 
-$~$
-
-The key shift from a standard LLM:
-
-**autonomy over time**
+$~$The key shift from a standard LLM: **autonomy over time**
 
 ## What makes something agentic? {.smaller}
 
@@ -188,6 +177,23 @@ $~$
 ::: callout-warning
 Higher autonomy = higher stakes. Mistakes **compound** across steps and can be hard to reverse.
 :::
+
+## Viewing AI as a collaborator {.smaller}
+
+Rather than a replacement or an oracle:
+
+- AI is a tool that extends what you can do — not a replacement for your judgment
+- Your domain expertise shapes whether the output is useful
+- The model doesn't know your data, your context, or your constraints — you do
+- **Critical evaluation of AI output is a core data science skill**
+
+## Viewing AI as a coding collaborator {.smaller}
+
+Think about how AI can help you be more creative
+
+![](images/hadley.png){fig-alt="Map of virginia AI data centers" fig-align="left" width="800"}
+
+## Like any technology, AI has impacts on humans and the environment
 
 ## AI in Virginia
 
@@ -231,7 +237,7 @@ Ten issues that matter for environmental data scientists:
 2.  Misinformation and hallucination
 3.  Consent and intellectual property
 4.  Privacy
-5.  Labor and economic displacement
+5.  Labor and economic displacement / human costs
 
 ## Ethical considerations (continued)
 
@@ -243,19 +249,11 @@ Ten issues that matter for environmental data scientists:
 
 ## Bias and fairness {.smaller}
 
-LLMs learn from human-generated text — which encodes historical biases around race, gender, class, and culture
+- LLMs learn from human-generated text — which encodes historical biases around race, gender, class, and culture
+
+- Models can **reproduce and amplify** these biases in ways that are hard to detect
 
 $~$
-
-Models can **reproduce and amplify** these biases in ways that are hard to detect
-
-$~$
-
-This matters especially when LLMs are used in:
-
-- Hiring and lending decisions
-- Healthcare triage
-- Legal and policy contexts
 
 ## Misinformation at scale {.smaller}
 
@@ -281,33 +279,29 @@ This matters especially when LLMs are used in:
 
 Training data is scraped from the web — often **without the knowledge or consent** of the people who created it
 
-$~$
-
 - Writers, artists, and coders have raised legitimate objections
 - No compensation or attribution for creators
 - Active litigation in multiple countries
-
-$~$
 
 As data scientists: think about what goes *into* the model, not just what comes out
 
 ## Privacy
 
-What information about the users do the AI companies hold and how do that use it?
+- What information about the users do the AI companies hold and how do that use it?
 
-What have the LLMs learned about us that is embedded in the model weights?
+- What have the LLMs learned about us that is embedded in the model weights?
 
-## Labor and economic displacement
+## Labor and economic displacement / human costs
 
-Who losses jobs and opportunities for employment?
+- Who losses jobs and opportunities for employment?
 
-Who is responsible for their transition to other employment?
+- Who is responsible for their transition to other employment?
+
+- Who is doing RLHF training? What do they have to see?
 
 ## Power concentration {.smaller}
 
 Frontier LLMs require **billions of dollars** to build
-
-$~$
 
 - A handful of large corporations control the most capable models
 - A few wealthy nations dominate development
@@ -320,17 +314,15 @@ $~$
 
 ## Accountability and opacity
 
-Who is responsible for the consequences of decision made by a human that was based on information from an LLM?
+- Who is responsible for the consequences of decision made by a human that was based on information from an LLM?
 
-Who is responsible for the consequences of a decision made and acted on by an LLM?
+- Who is responsible for the consequences of a decision made and acted on by an LLM?
 
 Are AI companies responsible for everything that a LLM says or nothing? How do we decide the gray area in the middle?
 
 ## Environmental impacts
 
 AI infrastructure has real physical costs:
-
-$~$
 
 - **Energy consumption** — data centers run 24/7
 - **Water use** — cooling systems for servers
@@ -391,46 +383,29 @@ Water is used for cooling, not computation
 
 ## Reducing Environmental Impacts
 
-Consider the size of the model
-
-Smaller models use less resources: match to need
-
-Claude example: sonnet \< opus \< fable
+- Consider the size of the model
+- Smaller models use less resources: match to need
+- Claude example: sonnet \< opus \< fable
 
 ## Loss of autonomy
 
 If we off-load critical thinking skills to AI:
 
-\- Do we become dependent on a few companies for problem solving capacities?
+- Do we become dependent on a few companies for problem solving capacities?
 
-\- What happens with power loss? Company failure? Loss of connectivity?
+- What happens with power loss?
+
+- Company failure?
+
+- Loss of connectivity?
 
 ## Alignment and safety {.smaller}
 
 At a deeper level: can we reliably make AI systems pursue goals that are **genuinely beneficial**?
 
-$~$
-
 - Models optimize for the reward signal they were given — not necessarily what we intended
 - As systems become more capable and autonomous, small misalignments can have large consequences
 - Active area of research at most major AI labs
-
-## Viewing AI as a collaborator {.smaller}
-
-Rather than a replacement or an oracle:
-
-$~$
-
-- AI is a tool that extends what you can do — not a replacement for your judgment
-- Your domain expertise shapes whether the output is useful
-- The model doesn't know your data, your context, or your constraints — you do
-- **Critical evaluation of AI output is a core data science skill**
-
-## Viewing AI as a coding collaborator {.smaller}
-
-Think about how AI can help you be more creative
-
-![](images/hadley.png){fig-alt="Map of virginia AI data centers" fig-align="left" width="800"}
 
 ## Summary {.smaller}
 
@@ -455,5 +430,3 @@ Think about how AI can help you be more creative
 - Critical evaluation is essential
 :::
 :::::
-
-## 
